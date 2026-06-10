@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: comm-platform
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: comm-platform
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+comm-platform:
+  broker:
+    active: ${BROKER_ACTIVE:kafka}
+  tos:
+    base-url: ${TOS_BASE_URL:http://tos-system:8080}
+    api-key: ${TOS_API_KEY:your-api-key}
+  firebase:
+    service-account-file: firebase-service-account.json
+  messaging:
+    line:
+      enabled: true
+      channel-token: ${LINE_CHANNEL_TOKEN:your-line-channel-token}
+    telegram:
+      enabled: true
+      bot-token: ${TELEGRAM_BOT_TOKEN:your-telegram-bot-token}
+      bot-username: ${TELEGRAM_BOT_USERNAME:your-bot-username}
+
+logging:
+  level:
+    com.clt.toscana: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

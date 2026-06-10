@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  comm-platform:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - BROKER_ACTIVE=kafka
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_HOST=redis
+      - DB_HOST=postgres
+      - DB_NAME=commplatform
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres123
+      - TOS_BASE_URL=http://tos-system:8080
+      - TOS_API_KEY=your-api-key
+    depends_on:
+      - kafka
+      - rabbitmq
+      - redis
+      - postgres
+    networks:
+      - comm-net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - comm-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - comm-net
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - comm-net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - comm-net
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: commplatform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - comm-net
+
+volumes:
+  pgdata:
+
+networks:
+  comm-net:
+    driver: bridge
