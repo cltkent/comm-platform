@@ -1,0 +1,11 @@
+.gradle/
+build/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+.idea/
+*.iml
+*.iws
+.DS_Store
+firebase-service-account.json
